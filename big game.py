@@ -1,3 +1,4 @@
+# I am making this when i am bored and need some practice, if you try and run it there will prolly be some bugs 
 import random
 import time 
 import os
