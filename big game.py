@@ -1,4 +1,4 @@
-# this is a test
+# asdasd
 import random
 import time 
 import os
