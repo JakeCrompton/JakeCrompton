@@ -1,4 +1,4 @@
-# lkjnasdlknasd
+# I started this when i have been bored and needed practice so there will prolly be bugs
 import random
 import time 
 import os
