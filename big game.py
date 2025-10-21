@@ -1,4 +1,4 @@
-# asdknsdkjbfgskjdf
+# uni pc works 
 import random
 import time 
 import os
