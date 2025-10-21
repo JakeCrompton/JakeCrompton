@@ -1,4 +1,4 @@
-# asdasdasdassdas
+# If you try to run this, there will prolly be a few bugs
 import random
 import time 
 import os
