@@ -1,4 +1,4 @@
-# I started this when i have been bored and needed practice so there will prolly be bugs
+# asdknsdkjbfgskjdf
 import random
 import time 
 import os
