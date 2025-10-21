@@ -167,7 +167,7 @@ def add_items_to_inv(drops):
             print(f"    {item} - {amount}x item added to inventory")
 
 def select_race():
-    print("\nAs you are being reborn, fate decides what you will become...")
+    print("As you are being reborn, fate decides what you will become...")
     time.sleep(1)
 
     choice = random.choice(list(races.keys()))
@@ -180,7 +180,6 @@ def select_race():
     player_controlled_stats['Strength'] += race_data['StrengthBonus']
     player_controlled_stats['Speed'] += race_data['SpeedBonus']
 
-    print(f"You have been reborn as {main_stats['Race']}\n")
     time.sleep(1.5)
 
 def clearOutput():
@@ -190,13 +189,13 @@ def options():
     print("This is a text based game, to play it you must type in the output.")
 
 def orcOrigin():
-    print("You were born as an orc")
+    print("You were born as an Orc!")
 
 def humanOrigin():
-    print("You were reborn as a human")
+    print("You were reborn as a Human!")
 
 def goblinOrigin():
-    print("You were reborn as a goblin")
+    print("You were reborn as a Goblin!")
 
 def press_to_continue():
     print("\nPress SPACE to continue")
@@ -311,11 +310,18 @@ print("2. Options.")
 mainmenuinput = input("> ").strip().lower()
 
 if mainmenuinput == "start":
+    clearOutput()
     print("Starting...")
     # This is character creation
     time.sleep(1)
     clearOutput()
     select_race()
+    if main_stats["Race"] == "Human":
+        humanOrigin()
+    elif main_stats["Race"] == "Orc":
+        orcOrigin()
+    else:
+        goblinOrigin()
     press_to_continue()
 
 elif mainmenuinput == "Options":
@@ -328,7 +334,7 @@ else:
 # Main game
 clearOutput()
 
-fight_enemy()
+fight_enemy()  # Make it so that the enemies arent randomised and the function can take an input and that input will be the enemy
 
 # Work on either the combat (it still needs who ever has the fastest speed will go first and bag usage)
 # maybe add quests to get more xp
