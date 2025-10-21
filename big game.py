@@ -24,9 +24,10 @@ def fight_enemy():
 
     while enemy_defeated == False:
         if canRun == True:
-            print("You can either Fight or Run. [fight, run]")
+            print("You can either Fight or Run. [fight, items, run]")
         else:
-            print("You can no longer run, you must fight. [fight]")
+            print("You can no longer run, you must fight. [fight, items]")
+            canRun = False
         fight_option1 = input("> ").lower()
 
         if fight_option1 == "fight":
@@ -52,23 +53,30 @@ def fight_enemy():
 
             else:
                 print("You did not enter a valid skill")
-        else:
+        elif fight_option1 == "run":
             if canRun == True:
                 if main_stats["Race"] == "Human":
-                    print("W BUFF")
+                    chance_to_run = random.randint(1, 10) # Human race have better odds
+                    if chance_to_run != 10:  # 10% chance to not be able to run
+                        print(f"You ran away from the {enemy['Name']}")
+                        break
+                    else:
+                        print("You failed to run away")
+                        canRun = False
                 else:
-                    print("NOT HUMAN")
-                chance_to_run = random.randint(1,2)
-                if chance_to_run == 1:
-                    print(f"You ran away from the {enemy['Name']}")
-                    break
-                else:
-                    print("You failed to run away")
+                    chance_to_run = random.randint(1, 10)
+                    if chance_to_run <= 8: # 20% chance to not be able to run 
+                        print(f"You ran away from the {enemy['Name']}")
+                        break
+                    else:
+                        print("You failed to run away")
+                        canRun = False
 
 
     if enemy_defeated:
-        print(f"You defeated the {enemy['Name']} and gained {enemy['XP_reward']} XP!")
+        print(f"You defeated the {enemy['Name']} and found {enemy['Cash_reward']} gold also gaining {enemy['XP_reward']} XP!")
         add_experience(enemy["XP_reward"])
+        add_money(enemy['Cash_reward'])
         add_items_to_inv(enemy['Drops'])
 
 
@@ -100,7 +108,7 @@ def spend_stat_points():
 
 def shop():
     clearOutput()
-    print("🛍️  Welcome to the Shop!\n")
+    print("Welcome to the Shop!\n")
 
     shop_stock = generate_shop_stock()
     
@@ -159,6 +167,10 @@ def shop():
         press_to_continue()
         clearOutput()
 
+def add_money(amount):
+    main_stats['Money'] += amount
+    print(f"You now have {main_stats['Money']} gold.")
+
 def add_items_to_inv(drops):
     for item, (min_amount, max_amount) in drops.items():
         amount = random.randint(min_amount, max_amount)
@@ -180,8 +192,6 @@ def select_race():
     player_controlled_stats['Strength'] += race_data['StrengthBonus']
     player_controlled_stats['Speed'] += race_data['SpeedBonus']
 
-    time.sleep(1.5)
-
 def clearOutput():
     os.system('cls')
 
@@ -189,13 +199,13 @@ def options():
     print("This is a text based game, to play it you must type in the output.")
 
 def orcOrigin():
-    print("You were born as an Orc!")
+    print("\nYou will be reborn as an Orc!")
 
 def humanOrigin():
-    print("You were reborn as a Human!")
+    print("\nYou will be reborn as a Human!")
 
 def goblinOrigin():
-    print("You were reborn as a Goblin!")
+    print("\nYou will be reborn as a Goblin!")
 
 def press_to_continue():
     print("\nPress SPACE to continue")
@@ -248,7 +258,8 @@ main_stats = {
     "Health": 100,
     "Stat_Points": 0,
     "Money": 0,
-    "Race": ""
+    "Race": "",
+    "Name": ""
 }
 
 player_items = {
@@ -269,7 +280,9 @@ enemies = [
     {
         "Name": "Goblin",
         "Health": 30,
+        "Speed": 30,
         "XP_reward": random.randint(100, 200),
+        "Cash_reward": random.randint(1, 5),
         "Drops": {
             "Stick": (0, 2),
             "Lighter": (0, 1)
@@ -278,7 +291,9 @@ enemies = [
     {
         "Name": "Zombie",
         "Health": 30,
+        "Speed": 30,
         "XP_reward": random.randint(100, 200),
+        "Cash_reward": random.randint(1, 5),
         "Drops": {
             "Stick": (1, 3),
             "Lighter": (0, 1)
@@ -312,16 +327,25 @@ mainmenuinput = input("> ").strip().lower()
 if mainmenuinput == "start":
     clearOutput()
     print("Starting...")
+
     # This is character creation
     time.sleep(1)
     clearOutput()
     select_race()
+    print("Firstly, what would you like to be called?")
+    playername = input("> ").strip()
+    main_stats['Name'] = playername
+    time.sleep(1)
     if main_stats["Race"] == "Human":
         humanOrigin()
     elif main_stats["Race"] == "Orc":
         orcOrigin()
     else:
         goblinOrigin()
+
+    time.sleep(2)
+    clearOutput()
+    print(f"Good luck in your life {main_stats['Name']}!")
     press_to_continue()
 
 elif mainmenuinput == "Options":
@@ -339,3 +363,5 @@ fight_enemy()  # Make it so that the enemies arent randomised and the function c
 # Work on either the combat (it still needs who ever has the fastest speed will go first and bag usage)
 # maybe add quests to get more xp
 # make actual progression as well
+
+# might need to redo the enemies part because they need skills (dictionary) to use on the player and different type of them so it doesnt get boring
