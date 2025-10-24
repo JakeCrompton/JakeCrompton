@@ -1,6 +1,7 @@
-# hahahahahaha
+# asjdnajlsndjlasndjlansdljn
 import time 
 import os
+import random
 import sys
 
 def add_experience(amount):
