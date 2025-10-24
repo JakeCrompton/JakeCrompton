@@ -259,7 +259,8 @@ main_stats = {
     "Stat_Points": 0,
     "Money": 0,
     "Race": "",
-    "Name": ""
+    "Name": "",
+    "Location": "",
 }
 
 player_items = {
