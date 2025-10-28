@@ -12,65 +12,88 @@ def add_experience(amount):
         main_stats["Stat_Points"] += 1
         print(f"Level up! You are now level {main_stats['Level']}!")
         print(f"You have {main_stats['Stat_Points']} unspent stat points")
+        # make it so when the player levels up their main stats will go up too (with the player controlled one)
 
 def xp_to_next_level(level):
     # can change the amount of xp needed by changing the formula (player needs 100 xp if level 1 and 300 if level 3)
     return 100 * (level + 1)
 
+import random
+
 def fight_enemy():
     canRun = True
-    print(f"A {enemy['Name']} wants to fight you")
+    print(f"A {enemy['Name']} wants to fight you!")
     enemy_defeated = False
 
-    while enemy_defeated == False:
-        if canRun == True:
-            print("You can either Fight or Run. [fight, items, run]")
+    while not enemy_defeated:
+        if canRun:
+            print("What will you do? [fight, items, run]")
         else:
-            print("You can no longer run, you must fight. [fight, items]")
-            canRun = False
-        fight_option1 = input("> ").lower()
+            print("You can no longer run. [fight, items]")
 
+        fight_option1 = input("> ").strip().lower()
+
+        # FIGHT 
         if fight_option1 == "fight":
-            print(f"\n Which skill do you want to use on the {enemy['Name']}?")
+            print(f"\nWhich skill do you want to use on the {enemy['Name']}?")
+            for skill, dmg in player_skills.items():
+                print(f"- {skill}: {dmg} base damage")
 
-            for stat, value in player_skills.items():
-                print(f"{stat}: dealing {value} damage")
-            fight_option2 = input("> ").strip().lower()
-            foundMove = False
+            chosen_skill = input("> ").strip().lower()
 
-            for stat in player_skills.keys():
-                if stat.strip().lower() == fight_option2:
-                    foundMove = True
+            if chosen_skill in (skill.lower() for skill in player_skills):
+                player_first = player_controlled_stats["Speed"] >= enemy["Speed"]
+
+                # Player attacks 
+                if player_first:
+                    damageDealt = player_skills[chosen_skill.capitalize()] * player_controlled_stats["Strength"]
+                    enemy["Health"] -= damageDealt
+                    print(f"\nYou used {chosen_skill.capitalize()} and dealt {damageDealt} damage!")
+
+                    if enemy["Health"] <= 0:
+                        print(f"The {enemy['Name']} has been defeated!")
+                        enemy_defeated = True
+                        break
+
+                # Enemy attacks 
+                enemy_damage = enemy["Damage"]
+                main_stats["Health"] -= enemy_damage
+                print(f"The {enemy['Name']} attacks you for {enemy_damage} damage!")
+
+                if player_controlled_stats["Health"] <= 0:
+                    print("You were defeated...")
                     break
 
-            if foundMove:
-                damageDealt = player_skills['Punch'] * player_controlled_stats["Strength"]
-                print(damageDealt)
-                enemy['Health'] -= damageDealt
-                if enemy['Health'] <= 0:
-                    enemy_defeated = True
-                print(f"\nYou have dealt {damageDealt} damage to the {enemy['Name']} [{enemy['Health']}hp remaining]")
-
             else:
-                print("You did not enter a valid skill")
+                print("Invalid skill. Try again.")
+
+        # RUN 
         elif fight_option1 == "run":
-            if canRun == True:
-                if main_stats["Race"] == "Human":
-                    chance_to_run = random.randint(1, 10) # Human race have better odds
-                    if chance_to_run != 10:  # 10% chance to not be able to run
-                        print(f"You ran away from the {enemy['Name']}")
-                        break
-                    else:
-                        print("You failed to run away")
-                        canRun = False
-                else:
-                    chance_to_run = random.randint(1, 10)
-                    if chance_to_run <= 8: # 20% chance to not be able to run 
-                        print(f"You ran away from the {enemy['Name']}")
-                        break
-                    else:
-                        print("You failed to run away")
-                        canRun = False
+            if not canRun:
+                print("You cannot run anymore!")
+                continue
+
+            if main_stats["Race"].lower() == "human":
+                chance = random.randint(1, 10)
+                if chance != 10:
+                    print(f"You successfully ran away from the {enemy['Name']}!")
+                    break
+            else:
+                chance = random.randint(1, 10)
+                if chance <= 8:
+                    print(f"You successfully ran away from the {enemy['Name']}!")
+                    break
+
+            print("You failed to run away!")
+            canRun = False
+
+        # ITEMS
+        elif fight_option1 == "items":
+            print("You check your bag (feature not implemented yet).")
+
+        else:
+            print("Invalid choice. Try again.")
+
 
 
     if enemy_defeated:
@@ -192,6 +215,8 @@ def select_race():
     player_controlled_stats['Strength'] += race_data['StrengthBonus']
     player_controlled_stats['Speed'] += race_data['SpeedBonus']
 
+    time.sleep(1)
+
 def clearOutput():
     os.system('cls')
 
@@ -282,22 +307,30 @@ enemies = [
         "Name": "Goblin",
         "Health": 30,
         "Speed": 30,
+        "Damage": 1,
         "XP_reward": random.randint(100, 200),
         "Cash_reward": random.randint(1, 5),
         "Drops": {
             "Stick": (0, 2),
             "Lighter": (0, 1)
+        },
+        "Skills": {
+            "Kick": 5,
         }
     },
     {
         "Name": "Zombie",
         "Health": 30,
         "Speed": 30,
+        "Damage": 30,
         "XP_reward": random.randint(100, 200),
         "Cash_reward": random.randint(1, 5),
         "Drops": {
             "Stick": (1, 3),
             "Lighter": (0, 1)
+        },
+        "Skills": {
+            "Kick": 5,
         }
     }
 ]
@@ -318,43 +351,48 @@ item_DB = {  # add more items in here (5 in each atleast) (the lower the rarity,
 }
 enemy = random.choice(enemies)
 
-print("#############")
-print("# Main Menu #")
-print("#############")
-print("1. Start.")
-print("2. Options.")
-mainmenuinput = input("> ").strip().lower()
+# Main menu
+mainMenu = False
+while mainMenu == True:
+    print("#############")
+    print("# Main Menu #")
+    print("#############")
+    print("1. Start.")
+    print("2. Options.")
+    mainmenuinput = input("> ").strip().lower()
 
-if mainmenuinput == "start":
-    clearOutput()
-    print("Starting...")
+    if mainmenuinput == "start":
+        clearOutput()
+        print("Starting...")
 
-    # This is character creation
-    time.sleep(1)
-    clearOutput()
-    select_race()
-    print("Firstly, what would you like to be called?")
-    playername = input("> ").strip()
-    main_stats['Name'] = playername
-    time.sleep(1)
-    if main_stats["Race"] == "Human":
-        humanOrigin()
-    elif main_stats["Race"] == "Orc":
-        orcOrigin()
+        # This is character creation
+        time.sleep(1)
+        clearOutput()
+        select_race()
+        print("Firstly, what would you like to be called?")
+        playername = input("> ").strip()
+        main_stats['Name'] = playername
+        time.sleep(1)
+        if main_stats["Race"] == "Human":
+            humanOrigin()
+        elif main_stats["Race"] == "Orc":
+            orcOrigin()
+        else:
+            goblinOrigin()
+
+        time.sleep(2)
+        clearOutput()
+        print(f"Good luck in your life {main_stats['Name']}!")
+        press_to_continue()
+        mainMenu = False
+    elif mainmenuinput == "Options":
+        print("Options...")
+        options()
+
     else:
-        goblinOrigin()
-
-    time.sleep(2)
-    clearOutput()
-    print(f"Good luck in your life {main_stats['Name']}!")
-    press_to_continue()
-
-elif mainmenuinput == "Options":
-    print("Options...")
-    options()
-
-else:
-    print("You did not select a valid option.")
+        clearOutput()
+        print("You did not select a valid option.")
+        print("Please try again.")
 
 # Main game
 clearOutput()
